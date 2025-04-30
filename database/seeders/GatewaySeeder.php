@@ -15,7 +15,13 @@ class GatewaySeeder extends Seeder
     {
         Gateway::query()
             ->insert([
-                ['name' => 'Asaas', 'slug' => 'asaas', 'created_at' => now(), 'updated_at' => now()],
+                [
+                    'name' => 'Asaas',
+                    'slug' => 'asaas',
+                    'active' => true,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ],
             ]);
     }
 }
