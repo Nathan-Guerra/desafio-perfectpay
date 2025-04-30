@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AsaasCustomer extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = [
         'customer_id',
         'asaas_id',
