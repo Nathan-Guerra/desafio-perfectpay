@@ -10,6 +10,7 @@ class Gateway extends Model
     protected $fillable = [
         'name',
         'slug',
+        'active'
     ];
 
     public function payments(): HasMany
