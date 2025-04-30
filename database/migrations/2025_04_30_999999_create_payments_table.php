@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('customers');
+            $table->foreignId('gateway_id')->constrained('gateways');
             $table->uuid('payment_uuid')->unique();
-            $table->string('asaas_payment_id');
+            $table->string('external_reference');
             $table->string('type');
             $table->unsignedInteger('value');
             $table->string('currency', 3);
