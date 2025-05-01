@@ -18,7 +18,6 @@ class PaymentStandardFieldsRequest extends FormRequest
             app(CustomerRequest::class)->rules(),
             [
                 'value' => 'required|integer|gt:0',
-                'dueDate' => 'required|date',
             ],
         );
     }
