@@ -8,6 +8,8 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::apiResource('payments', PaymentController::class, [
-    'only' => ['show', 'store']
-]);
+Route::name('api.')->group(function (\Illuminate\Routing\Router $route) {
+    $route->apiResource('payments', PaymentController::class, [
+        'only' => ['show', 'store']
+    ]);
+});

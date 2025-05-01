@@ -12,6 +12,8 @@ class AsaasCreditCardToken extends Model
     protected $fillable = [
         'customer_id',
         'token',
+        'brand',
+        'number'
     ];
 
     public function customer(): BelongsTo

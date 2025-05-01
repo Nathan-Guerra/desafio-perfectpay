@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreditCardFullRequest extends FormRequest
+class CreditCardRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -19,13 +19,9 @@ class CreditCardFullRequest extends FormRequest
             'creditCard.expiryYear' => 'required|digits:4|integer|min:' . date('Y'),
             'creditCard.ccv' => 'required|digits:3',
 
-            'creditCardHolderInfo.name' => 'nullable|string',
-            'creditCardHolderInfo.cpfCnpj' => 'nullable|string',
             'creditCardHolderInfo.postalCode' => 'required|string|max:10',
             'creditCardHolderInfo.addressNumber' => 'required|string|max:10',
             'creditCardHolderInfo.addressComplement' => 'nullable|string|max:255',
-            'creditCardHolderInfo.phone' => 'required|string|max:20',
-            'creditCardHolderInfo.mobilePhone' => 'nullable|string|max:20',
         ]);
     }
 }

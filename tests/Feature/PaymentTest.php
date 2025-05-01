@@ -2,17 +2,29 @@
 
 namespace Tests\Feature;
 
+use App\Http\Resources\PaymentResource;
 use App\Models\Payment;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
 class PaymentTest extends TestCase
 {
+    use RefreshDatabase;
+
+    protected bool $seed = true;
+
+    /**
+     * @var class-string<DatabaseSeeder>
+     */
+    protected string $seeder = DatabaseSeeder::class;
+
     public function test_payment_endpoint_should_return_an_error_for_empty_body(): void
     {
-        $response = $this->postJson(route('payments.store'));
+        $response = $this->postJson(route('api.payments.store'));
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -21,14 +33,16 @@ class PaymentTest extends TestCase
     {
         $payload = [
             'name' => 'João Silva',
+            'email' => 'joao.silva@teste.com',
+            'phone' => '24999084601',
             'cpfCnpj' => '12345678901',
             'billingType' => 'BOLET0',
             'value' => '15000',
         ];
 
-        $response = $this->postJson(route('payments.store'), $payload);
+        $response = $this->postJson(route('api.payments.store'), $payload);
 
-        $response->assertStatus(Response::HTTP_BAD_REQUEST)
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrorFor('billingType');
     }
 
@@ -36,12 +50,14 @@ class PaymentTest extends TestCase
     {
         $payload = [
             'name' => 'Maria Souza',
+            'email' => 'maria.souza@teste.com',
+            'phone' => '24999084601',
             'cpfCnpj' => '98765432100',
             'billingType' => 'PIX',
             'value' => '-20000',
         ];
 
-        $response = $this->postJson(route('payments.store'), $payload);
+        $response = $this->postJson(route('api.payments.store'), $payload);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrorFor('value');
@@ -51,20 +67,18 @@ class PaymentTest extends TestCase
     {
         $payload = [
             'name' => 'Carlos Lima',
+            'email' => 'carlos.lima@teste.com',
+            'phone' => '24999084601',
             'cpfCnpj' => '11122233344',
             'billingType' => 'CREDIT_CARD',
             'value' => '25000',
             'creditCard' => [
-                'holderName' => 'Carlos Lima',
                 'number' => '5184019740373151',
                 'expiryMonth' => '12',
                 'expiryYear' => '2026',
                 'ccv' => '123',
             ],
             'creditCardHolderInfo' => [
-                'name' => 'Carlos Lima',
-                'email' => 'carlos@example.com',
-                'cpfCNPJ' => '11122233344',
                 'postalCode' => '12345678',
                 'addressNumber' => '99',
                 'addressComplement' => 'Casa',
@@ -72,99 +86,78 @@ class PaymentTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson(route('payments.store'), $payload);
+        $response = $this->postJson(route('api.payments.store'), $payload);
 
-        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
-            ->assertJsonValidationErrorFor('creditCard.number');
+        $response->assertStatus(Response::HTTP_BAD_REQUEST);
     }
 
-    public function test_payment_with_boleto_should_redirect_to_the_payment_page(): void
+    public function test_payment_with_correct_boleto_payload_should_succeed(): void
     {
         $payload = [
-            'Nome' => 'João Silva',
-            'CPF' => '12345678901',
+            'name' => 'João Silva',
+            'email' => 'joao.silva@teste.com',
+            'phone' => '24999084601',
+            'cpfCnpj' => '07894953091',
             'billingType' => 'BOLETO',
             'value' => '15000',
         ];
 
-        $response = $this->postJson(route('payments.store'), $payload);
+        $response = $this->postJson(route('api.payments.store'), $payload);
+        $lastPaymment = Payment::query()->latest('id')->first();
 
-        $lastPaymment = Payment::query()->latest('id');
-        $response->assertRedirect(route('payment.show', ['paymentId' => $lastPaymment->payment_uuid]));
+        $this->assertSame((new PaymentResource($lastPaymment))->toArray(\request()), $response['data']);
+
+        $response->assertStatus(201);
     }
 
     public function test_payment_with_pix_should_redirect_to_the_payment_page(): void
     {
         $payload = [
-            'Nome' => 'Joao Silva',
-            'CPF' => '99991111140',
+            'name' => 'Joao Silva',
+            'email' => 'joao.silva@teste.com',
+            'phone' => '24999084601',
+            'cpfCnpj' => '07894953091',
             'billingType' => 'PIX',
             'value' => '20000',
         ];
 
-        $response = $this->postJson(route('payments.store'), $payload);
+        $response = $this->postJson(route('api.payments.store'), $payload);
+        $lastPaymment = Payment::query()->latest('id')->first();
 
-        $lastPaymment = Payment::query()->latest('id');
-        $response->assertRedirect(route('payment.show', ['paymentId' => $lastPaymment->payment_uuid]));
+        $this->assertSame((new PaymentResource($lastPaymment))->toArray(\request()), $response['data']);
+
+        $response->assertStatus(201);
     }
 
     public function test_payment_with_credit_card_should_redirect_to_the_payment_page(): void
     {
         $payload = [
             'name' => 'Carlos Lima',
-            'cpfCnpj' => '11122233344',
+            'email' => 'carlos.lima@teste.com',
+            'phone' => '24999084601',
+            'cpfCnpj' => '07894953091',
             'billingType' => 'CREDIT_CARD',
             'value' => '25000',
             'creditCard' => [
-                'holderName' => 'Carlos Lima',
-                'number' => '444444444444',
+                'number' => '4444333322221111',
                 'expiryMonth' => '12',
                 'expiryYear' => '2026',
                 'ccv' => '123',
             ],
             'creditCardHolderInfo' => [
-                'name' => 'Carlos Lima',
-                'email' => 'carlos@example.com',
-                'cpfCNPJ' => '11122233344',
-                'postalCode' => '12345678',
+                'postalCode' => '27522200',
                 'addressNumber' => '99',
                 'addressComplement' => 'Casa',
-                'phone' => '1133557799',
             ],
         ];
 
-        $response = $this->postJson(route('payments.store'), $payload);
+        $response = $this->postJson(route('api.payments.store'), $payload);
+        $lastPaymment = Payment::query()->latest('id')->first();
 
-        $lastPaymment = Payment::query()->latest('id');
-        $response->assertRedirect(route('payment.show', ['paymentId' => $lastPaymment->payment_uuid]));
-    }
+        $response->dump();
 
-    public function test_payment_with_installments_credit_card_should_redirect_to_the_payment_page(): void
-    {
-        $payload = [
-            'name' => 'Ana Paula',
-            'cpfCnpj' => '55566677788',
-            'billingType' => 'CREDIT_CARD',
-            'value' => '50000',
-            'installmentCount' => '3',
-            'creditCard' => [
-                'holderName' => 'Ana Paula',
-                'number' => '4444444444444444',
-                'expiryMonth' => '11',
-                'expiryYear' => '2026',
-                'ccv' => '321',
-            ],
-            'creditCardHolderInfo' => [
-                'postalCode' => '87654321',
-                'addressNumber' => '10A',
-                'addressComplement' => 'Bloco B',
-                'phone' => '1122334455',
-            ],
-        ];
+        $this->assertSame(new PaymentResource($lastPaymment)->toArray(\request()), $response['data']);
 
-        $response = $this->postJson(route('payments.store'), $payload);
-
-        $lastPaymment = Payment::query()->latest('id');
-        $response->assertRedirect(route('payment.show', ['paymentId' => $lastPaymment->payment_uuid]));
+        $response->assertStatus(201);
     }
 }

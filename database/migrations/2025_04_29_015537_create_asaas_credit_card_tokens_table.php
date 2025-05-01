@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('asaas_credit_card_tokens', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('customers');
+            $table->string('brand', 20);
+            $table->string('number', 4);
             $table->string('token');
         });
     }

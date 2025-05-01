@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use GuzzleHttp\Client;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,6 +13,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind('insecure-http-client', function (Application $app) {
+            return new Client(['verify' => false, 'http_errors' => false]);
+        });
         //
     }
 

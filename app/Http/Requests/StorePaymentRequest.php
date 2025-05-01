@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\PaymentTypesEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePaymentRequest extends FormRequest
 {
@@ -14,7 +16,10 @@ class StorePaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'billingType' => 'required|string',
+            'billingType' => [
+                'required',
+                Rule::enum(PaymentTypesEnum::class)
+            ],
         ];
     }
 }

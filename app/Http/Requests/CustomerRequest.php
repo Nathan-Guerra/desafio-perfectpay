@@ -16,6 +16,8 @@ class CustomerRequest extends FormRequest
         return [
             'name' => 'required|string',
             'cpfCnpj' => 'required|string',
+            'email' => 'required|email',
+            'phone' => 'required|string',
         ];
     }
 }

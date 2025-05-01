@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\BoletoRequest;
+use App\Exceptions\AsaasRequestException;
 use App\Http\Requests\StorePaymentRequest;
+use App\Http\Resources\PaymentResource;
+use App\Services\AsaasService;
 use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
@@ -23,11 +23,34 @@ class PaymentController extends Controller
             );
         }
 
-        // Proceed with payment processing if validation passes
+        try {
+            $validated['ip'] = $request->ip();
+
+            DB::beginTransaction();
+            /** @var AsaasService $asaasService */
+            $asaasService = app(AsaasService::class);
+            $payment = $asaasService->pay($validated);
+            DB::commit();
+        } catch (AsaasRequestException $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Erro ao processar o pagamento.',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_BAD_REQUEST);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Erro ao processar o pagamento.',
+                'error' => 'Erro ao processar o pagamento.',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
         return response()->json([
-            'message' => 'Payment processed successfully',
-            'data' => $validated
-        ], Response::HTTP_OK);
+            'message' => 'Pagamento processado corretamente.',
+            'data' => new PaymentResource($payment),
+        ], Response::HTTP_CREATED);
     }
 
     /**
