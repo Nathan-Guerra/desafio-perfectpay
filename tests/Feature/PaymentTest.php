@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Payment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Response;
@@ -11,7 +12,7 @@ class PaymentTest extends TestCase
 {
     public function test_payment_endpoint_should_return_an_error_for_empty_body(): void
     {
-        $response = $this->post(route('payment.store'), []);
+        $response = $this->postJson(route('payments.store'));
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -25,7 +26,7 @@ class PaymentTest extends TestCase
             'value' => '15000',
         ];
 
-        $response = $this->postJson('/payment', $payload);
+        $response = $this->postJson(route('payments.store'), $payload);
 
         $response->assertStatus(Response::HTTP_BAD_REQUEST)
             ->assertJsonValidationErrorFor('billingType');
@@ -40,7 +41,7 @@ class PaymentTest extends TestCase
             'value' => '-20000',
         ];
 
-        $response = $this->postJson('/payment', $payload);
+        $response = $this->postJson(route('payments.store'), $payload);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrorFor('value');
@@ -71,7 +72,7 @@ class PaymentTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson('/payment', $payload);
+        $response = $this->postJson(route('payments.store'), $payload);
 
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrorFor('creditCard.number');
@@ -86,9 +87,9 @@ class PaymentTest extends TestCase
             'value' => '15000',
         ];
 
-        $response = $this->postJson('/payment', $payload);
+        $response = $this->postJson(route('payments.store'), $payload);
 
-        $lastPaymment = Payment::latest('id');
+        $lastPaymment = Payment::query()->latest('id');
         $response->assertRedirect(route('payment.show', ['paymentId' => $lastPaymment->payment_uuid]));
     }
 
@@ -101,9 +102,9 @@ class PaymentTest extends TestCase
             'value' => '20000',
         ];
 
-        $response = $this->postJson('/payment', $payload);
+        $response = $this->postJson(route('payments.store'), $payload);
 
-        $lastPaymment = Payment::latest('id');
+        $lastPaymment = Payment::query()->latest('id');
         $response->assertRedirect(route('payment.show', ['paymentId' => $lastPaymment->payment_uuid]));
     }
 
@@ -132,9 +133,9 @@ class PaymentTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson('/payment', $payload);
+        $response = $this->postJson(route('payments.store'), $payload);
 
-        $lastPaymment = Payment::latest('id');
+        $lastPaymment = Payment::query()->latest('id');
         $response->assertRedirect(route('payment.show', ['paymentId' => $lastPaymment->payment_uuid]));
     }
 
@@ -161,9 +162,9 @@ class PaymentTest extends TestCase
             ],
         ];
 
-        $response = $this->postJson('/payment', $payload);
+        $response = $this->postJson(route('payments.store'), $payload);
 
-        $lastPaymment = Payment::latest('id');
+        $lastPaymment = Payment::query()->latest('id');
         $response->assertRedirect(route('payment.show', ['paymentId' => $lastPaymment->payment_uuid]));
     }
 }
