@@ -13,9 +13,6 @@ class BoletoRequest extends FormRequest
      */
     public function rules(): array
     {
-        return array_merge(app(CustomerRequest::class)->rules(), [
-            'value' => 'required|integer',
-            'dueDate' => 'required|date',
-        ]);
+        return app(PaymentStandardFieldsRequest::class)->rules();
     }
 }

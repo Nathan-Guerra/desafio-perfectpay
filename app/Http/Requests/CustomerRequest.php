@@ -13,9 +13,9 @@ class CustomerRequest extends FormRequest
      */
     public function rules(): array
     {
-        return array_merge(app(StorePaymentRequest::class)->rules(), [
+        return [
             'name' => 'required|string',
             'cpfCnpj' => 'required|string',
-        ]);
+        ];
     }
 }
