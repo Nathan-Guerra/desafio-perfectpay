@@ -30,7 +30,7 @@ class PaymentValidatorService
         $billingType = $this->request->input('billingType');
 
         if (!PaymentTypesEnum::isValidPaymentType($billingType)) {
-            throw new InvalidBillingTypeException("Invalid billing type: $billingType");
+            throw new InvalidBillingTypeException("Tipo de pagamento [$billingType] inválido.");
         }
 
         $billingTypeEnum = PaymentTypesEnum::from($billingType);
