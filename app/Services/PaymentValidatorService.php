@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Enums\PaymentTypesEnum;
 use App\Exceptions\InvalidBillingTypeException;
-use App\Exceptions\UnmatchedBillingTypeException;
+use App\Exceptions\UnavailableBillingValidatorException;
 use App\Http\Requests\BoletoRequest;
 use App\Http\Requests\CreditCardFullRequest;
 use App\Http\Requests\CreditCardInstallmentRequest;
@@ -23,7 +23,7 @@ class PaymentValidatorService
 
     /**
      * @throws InvalidBillingTypeException
-     * @throws UnmatchedBillingTypeException
+     * @throws UnavailableBillingValidatorException
      */
     public function validate(): array
     {
@@ -51,7 +51,7 @@ class PaymentValidatorService
     }
 
     /**
-     * @throws UnmatchedBillingTypeException
+     * @throws UnavailableBillingValidatorException
      */
     public function setValidator(PaymentTypesEnum $billingType): void
     {
@@ -60,7 +60,7 @@ class PaymentValidatorService
             PaymentTypesEnum::PIX => app(PixRequest::class),
             PaymentTypesEnum::CREDIT_CARD_FULL => app(CreditCardFullRequest::class),
             PaymentTypesEnum::CREDIT_CARD_INSTALLMENTS => app(CreditCardInstallmentRequest::class),
-            default => throw new UnmatchedBillingTypeException("Sem validador para o tipo de pagamento [{$billingType->value}]."),
+            default => throw new UnavailableBillingValidatorException("Sem validador para o tipo de pagamento [{$billingType->value}]."),
         };
     }
 }
