@@ -18,7 +18,7 @@ class StorePaymentRequest extends FormRequest
         return [
             'billingType' => [
                 'required',
-                Rule::enum(PaymentTypesEnum::class)
+                Rule::enum(PaymentTypesEnum::class),
             ],
         ];
     }

@@ -18,7 +18,7 @@ class PaymentController extends Controller
         $validated = $paymentService->validatePaymentRequest($request);
         if ($validated['error'] ?? false) {
             return response()->json(
-                array_filter($validated, fn($k) => $k != 'error', ARRAY_FILTER_USE_KEY),
+                array_filter($validated, fn ($k) => $k != 'error', ARRAY_FILTER_USE_KEY),
                 Response::HTTP_BAD_REQUEST
             );
         }

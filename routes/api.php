@@ -10,6 +10,6 @@ Route::get('/user', function (Request $request) {
 
 Route::name('api.')->group(function (\Illuminate\Routing\Router $route) {
     $route->apiResource('payments', PaymentController::class, [
-        'only' => ['show', 'store']
+        'only' => ['show', 'store'],
     ]);
 });

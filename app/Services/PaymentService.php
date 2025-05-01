@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use App\Exceptions\InvalidBillingTypeException;
-use App\Exceptions\UnavailableBillingValidatorException;
 use App\Http\Requests\StorePaymentRequest;
 
 class PaymentService
@@ -12,5 +10,4 @@ class PaymentService
     {
         return (new PaymentValidatorService($request))->validate();
     }
-
 }

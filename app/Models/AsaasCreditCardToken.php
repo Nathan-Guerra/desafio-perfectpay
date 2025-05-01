@@ -13,7 +13,7 @@ class AsaasCreditCardToken extends Model
         'customer_id',
         'token',
         'brand',
-        'number'
+        'number',
     ];
 
     public function customer(): BelongsTo

@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Gateway;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class GatewaySeeder extends Seeder
@@ -20,7 +19,7 @@ class GatewaySeeder extends Seeder
                     'slug' => 'asaas',
                     'active' => true,
                     'created_at' => now(),
-                    'updated_at' => now()
+                    'updated_at' => now(),
                 ],
             ]);
     }

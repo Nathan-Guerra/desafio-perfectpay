@@ -6,8 +6,6 @@ use App\Http\Resources\PaymentResource;
 use App\Models\Payment;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 

@@ -96,7 +96,7 @@ class AsaasService
             'customer' => $customer->asaasCustomer->asaas_id,
             'billingType' => $payload['billingType'],
             'value' => $payload['value'] / 100,
-            'dueDate' => (new \DateTime())->add(new \DateInterval('P7D'))->format('Y-m-d'),
+            'dueDate' => $this->dueDateByPaymentType($payload['billingType']),
         ]);
     }
 
@@ -111,7 +111,7 @@ class AsaasService
             'customer' => $customer->asaasCustomer->asaas_id,
             'billingType' => $payload['billingType'],
             'value' => $payload['value'] / 100,
-            'dueDate' => new \DateTime()->add(new \DateInterval('P7D'))->format('Y-m-d'),
+            'dueDate' => $this->dueDateByPaymentType($payload['billingType']),
         ]);
     }
 
@@ -126,7 +126,7 @@ class AsaasService
             'customer' => $customer->asaasCustomer->asaas_id,
             'billingType' => $payload['billingType'],
             'value' => $payload['value'] / 100,
-            'dueDate' => (new \DateTime())->add(new \DateInterval('P7D'))->format('Y-m-d'),
+            'dueDate' => $this->dueDateByPaymentType($payload['billingType']),
             'creditCardToken' => $customer->asaasCreditCardToken->token,
         ]);
     }
@@ -163,12 +163,12 @@ class AsaasService
         );
     }
 
-    public function linhaDigitavelBoleto()
+    public function linhaDigitavelBoleto(Payment $payment)
     {
         try {
             $response = $this->client->request(
                 'GET',
-                $this->makeEndpoint(sprintf('payments/%s/identificationField', $this->paymentIds['boleto'])),
+                $this->makeEndpoint(sprintf('payments/%s/identificationField', $payment->external_reference)),
                 ['headers' => $this->getHeaders()],
             );
 
@@ -178,12 +178,12 @@ class AsaasService
         }
     }
 
-    public function qrCodePix()
+    public function qrCodePix(Payment $payment)
     {
         try {
             $response = $this->client->request(
                 'GET',
-                $this->makeEndpoint(sprintf('payments/%s/pixQrCode', $this->paymentIds['pix'])),
+                $this->makeEndpoint(sprintf('payments/%s/pixQrCode', $payment->external_reference)),
                 ['headers' => $this->getHeaders()],
             );
 
@@ -298,7 +298,7 @@ class AsaasService
             ->where('type', $payload['billingType'])
             ->where('value', $payload['value'])
             ->where('currency', 'BRL')
-            ->where('due_at', new \DateTime()->add(new \DateInterval('P7D'))->format('Y-m-d'))
+            ->where('due_at', $this->dueDateByPaymentType($payload['billingType']))
             ->where('created_at', '>=', now()->subMinutes(10))
             ->first();
     }
@@ -330,5 +330,14 @@ class AsaasService
         $customer->setRelation('asaasCreditCardToken', $asaasCreditCardToken);
 
         return $customer;
+    }
+
+    public function dueDateByPaymentType(string $enum): string
+    {
+        $now = now();
+        return match ($enum) {
+            PaymentTypesEnum::BOLETO->value => $now->add(new \DateInterval('P7D'))->format('Y-m-d'),
+            default => $now->add(new \DateInterval('PT30M'))->format('Y-m-d'),
+        };
     }
 }
