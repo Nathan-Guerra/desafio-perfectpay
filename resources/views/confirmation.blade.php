@@ -53,7 +53,7 @@
     @endif
 
     <div class="mt-8">
-        <a href="{{ route('checkout') }}" class="text-blue-600 underline">Return to Checkout</a>
+        <a href="{{ route('checkout') }}" class="text-blue-600 underline">Voltar para o Checkout</a>
     </div>
 </div>
 </body>
