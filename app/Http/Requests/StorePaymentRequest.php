@@ -22,4 +22,19 @@ class StorePaymentRequest extends FormRequest
             ],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'billingType.required' => 'O campo :attribute é obrigatório.',
+            'billingType.enum' => 'O campo :attribute deve ser um valor válido.',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'billingType' => 'Tipo de pagamento',
+        ];
+    }
 }

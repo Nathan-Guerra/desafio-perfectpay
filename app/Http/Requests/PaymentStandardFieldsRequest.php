@@ -21,4 +21,21 @@ class PaymentStandardFieldsRequest extends FormRequest
             ],
         );
     }
+
+    public function messages(): array
+    {
+        return [
+            'value.required' => 'O campo :attribute é obrigatório.',
+            'value.integer' => 'O campo :attribute deve ser um número inteiro.',
+            'value.gt' => 'O campo :attribute deve ser maior que :value.',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'value' => 'Valor',
+        ];
+
+    }
 }

@@ -120,7 +120,7 @@ class AsaasService
      * @throws GuzzleException
      * @throws AsaasRequestException
      */
-    public function requestCartaoCredito(Customer $customer, array $payload): array
+    public function requestCreditCard(Customer $customer, array $payload): array
     {
         return $this->requestAsaas('payments', [
             'customer' => $customer->asaasCustomer->asaas_id,
@@ -239,24 +239,12 @@ class AsaasService
             $paymentResponse = $this->requestBoleto($customer, $payload);
         } elseif ($billingType === PaymentTypesEnum::PIX->value) {
             $paymentResponse = $this->requestPix($customer, $payload);
-        } elseif ($billingType === PaymentTypesEnum::CREDIT_CARD->value) {
+        } else {
             $customer = $this->loadCreditCard($customer, $payload);
-            $paymentResponse = $this->requestCartaoCredito($customer, $payload);
+            $paymentResponse = $this->requestCreditCard($customer, $payload);
         }
 
-        $payment = new Payment();
-        $payment->customer()->associate($customer);
-        $payment->gateway_id = 1;
-        $payment->payment_uuid = Uuid::uuid4()->toString();
-        $payment->external_reference = $paymentResponse['id'];
-        $payment->type = $billingType;
-        $payment->value = $payload['value'];
-        $payment->currency = 'BRL';
-        $payment->status = $paymentResponse['status'];
-        $payment->due_at = $paymentResponse['dueDate'];
-        $payment->save();
-
-        return $payment;
+        return $this->createPayment($customer, $paymentResponse);
     }
 
     /**
@@ -339,5 +327,22 @@ class AsaasService
             PaymentTypesEnum::BOLETO->value => $now->add(new \DateInterval('P7D'))->format('Y-m-d'),
             default => $now->add(new \DateInterval('PT30M'))->format('Y-m-d'),
         };
+    }
+
+    public function createPayment(Customer $customer, array $paymentResponse): Payment
+    {
+        $payment = new Payment();
+        $payment->customer()->associate($customer);
+        $payment->gateway_id = 1;
+        $payment->payment_uuid = Uuid::uuid4()->toString();
+        $payment->external_reference = $paymentResponse['id'];
+        $payment->type = $paymentResponse['billingType'];
+        $payment->value = $paymentResponse['value'];
+        $payment->currency = 'BRL';
+        $payment->status = $paymentResponse['status'];
+        $payment->due_at = $paymentResponse['dueDate'];
+        $payment->save();
+
+        return $payment;
     }
 }
