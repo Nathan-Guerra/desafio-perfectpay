@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PaymentTypesEnum;
 use App\Exceptions\AsaasRequestException;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Resources\PaymentResource;
+use App\Models\Payment;
 use App\Services\AsaasService;
 use App\Services\PaymentService;
 use Illuminate\Http\JsonResponse;
@@ -56,8 +58,30 @@ class PaymentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $paymentUuid)
+    public function show(Payment $paymentUuid)
     {
-        //
+        $billingType = PaymentTypesEnum::from($paymentUuid->type);
+        $asaasService = app(AsaasService::class);
+
+        $payload = [
+            'paymentType' => $billingType->value,
+        ];
+
+        if ($billingType === PaymentTypesEnum::BOLETO) {
+            $boletoData = $asaasService->linhaDigitavelBoleto($paymentUuid);
+            $payload['boletoCode'] = $boletoData['identificationField'];
+        }
+
+        if ($billingType === PaymentTypesEnum::PIX) {
+            $pixData = $asaasService->qrCodePix($paymentUuid);
+            $payload['pixImage'] = $pixData['encodedImage'];
+            $payload['pixCode'] = $pixData['payload'];
+            $payload['dueDate'] = (new \DateTime($pixData['expirationDate']))->format('d/m/Y H:i:s');
+        }
+
+        if ($billingType === PaymentTypesEnum::CREDIT_CARD) {
+            $payload['status'] = $paymentUuid->status;
+        }
+        return view('confirmation', $payload);
     }
 }
