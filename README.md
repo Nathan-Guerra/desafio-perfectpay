@@ -62,6 +62,8 @@ dados do seu ambiente.
 ```bash
 php artisan migrate:fresh --seed
 ```
+9. Insira os dados da API do Asaas no arquivo `.env`. 
+Nomeadamente `ASAAS_API_KEY` e `ASAAS_API_URL`
 
 ## Executando o projeto
 ### Modo de desenvolvimento
@@ -86,3 +88,33 @@ Após isso, você pode executar o servidor embutido do PHP.
 ```bash
 php artisan serve
 ```
+## Rotas
+-> GET / - Página inicial do laravel
+
+-> GET /checkout - Página de checkout do "produto".
+
+-> GET /payments/{paymentUuid} - Página que exibe as informações do pagamento 
+efetuado na página de checkout.
+
+-> POST /api/payments - Insere um novo pagamento.
+
+## Utilização
+1. Va até a rota de checkout (/checkout) e preencha os dados da parte de cima.
+2. Selecione um tipo de pagamento.
+3. Caso o tipo de pagamento seja "Cartão de Crédito", preencha as informações da
+parte de baixo da tela.
+4. Aperte o botão azul no final da tela para realizar o pagamento.
+
+## Testes
+Para testar o projeto, basta utilizar o comando padrão do laravel.
+```bash
+php artisan test
+```
+_PS: Utilize a flag `-p` para executar os testes em paralelo._
+
+Para verificar a taxa de cobertura dos testes, será necessário a biblioteca do
+XDebug. Após a instalação basta executar o mesmo comando acima com a flag `--coverage`:
+```bash
+php artisan test --coverage
+```
+
