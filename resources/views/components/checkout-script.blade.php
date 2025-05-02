@@ -78,8 +78,6 @@
                     form.reset();
                     toggleCreditCardFields(); // Reset validation state
 
-                    console.log(result.data);
-
                     window.location.href = `/payments/${result.data.payment_uuid}`;
                 }
             } catch (err) {

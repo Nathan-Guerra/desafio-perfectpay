@@ -337,7 +337,7 @@ class AsaasService
         $payment->payment_uuid = Uuid::uuid4()->toString();
         $payment->external_reference = $paymentResponse['id'];
         $payment->type = $paymentResponse['billingType'];
-        $payment->value = $paymentResponse['value'];
+        $payment->value = (int)($paymentResponse['value'] * 100);
         $payment->currency = 'BRL';
         $payment->status = $paymentResponse['status'];
         $payment->due_at = $paymentResponse['dueDate'];
